@@ -1,0 +1,59 @@
+YESSS 🔥 *Mtaani Skills* is a solid choice. 
+
+"Book a trusted Fundi, support a TVET student" - people will share this.
+
+Let's build the MVP version you can launch in 1-2 months and start earning.
+
+### *1. Core Problem We're Solving*
+No trust + No proof of skill + No payment protection.  
+We fix it with: *Verified TVET Students + Escrow + Reviews + Location*
+
+### *2. MVP Features - Version 1.0*
+Build only these first. Don't add fluff.
+
+| *For Customers* | *For Fundis/Students* | *For Admin/You* |
+| --- | --- | --- |
+| 1. Search by Skill + Location | 1. Sign up with ID + TVET Certificate | 1. Approve/Verify Fundis |
+| 2. View profile, price, reviews, photos | 2. Set skills, price, availability | 2. View all jobs + disputes |
+| 3. Book job + Pay 50% via M-Pesa | 3. Accept/Reject jobs | 3. Release escrow payment |
+| 4. Chat with Fundi | 4. Mark job "Done" | 4. Take 10% commission |
+| 5. Release final 50% after job | 5. Get paid to M-Pesa |  |
+
+### *3. Tech Stack You Can Actually Build*
+As a student, keep it simple:
+1.  *Frontend*: React + Tailwind OR just HTML, CSS, JS if you’re starting
+2.  *Backend*: Node.js + Express OR Laravel PHP OR Django Python
+3.  *Database*: MySQL / PostgreSQL
+4.  *Payments*: M-Pesa Daraja API for STK Push + B2C to pay fundis
+5.  *Hosting*: Hostinger/Vercel + Free MySQL to start
+6.  *Maps*: Google Maps API to show "Fundis near me"
+
+### *4. Database Tables You’ll Need*
+1.  users - id, name, phone, role: customer/fundi/admin
+2.  fundis - user_id, skills, tvet_level, certificate_url, verified
+3.  jobs - id, customer_id, fundi_id, description, location, price, status
+4.  payments - job_id, amount, mpesa_code, status: escrow/released
+5.  reviews - job_id, rating, comment
+
+### *5. How You Make Money to Pay School Fees*
+1.  *10% Commission*: Job is 2000 KES → You keep 200 KES, Fundi gets 1800 KES
+2.  *Featured Fundi*: 500 KES/month to appear top of search
+3.  *Urgent Job Boost*: Customer pays 100 KES extra to appear first
+4.  *TVET Partnership*: Schools pay you to track student attachments
+
+Math: 50 jobs/month x 200 KES commission = *10,000 KES*. 200 jobs = 40K
+
+### *6. 30-Day Launch Plan*
+*Week 1-2*: Build signup, job posting, M-Pesa STK Push  
+*Week 3*: Add "Verify Fundi" page. Go to your TVET and register 20 Level 5/6 students for free  
+*Week 4*: Launch in 1 estate. Print posters: "Need a Fundi? Verified TVET Students on MtaaniSkills.co.ke"  
+*Month 2*: Add reviews, chat, and expand to next town
+
+### *7. Name + Branding Ideas*
+MtaaniSkills.co.ke / FundiLink.co.ke / KaziMtaani.com  
+Slogan: "Skilled Hands. Trusted Jobs. Support Kenyan Talent."
+
+### *Biggest Trust Features to Add*
+1.  *Green "TVET Verified" badge* with certificate number
+2.  *Escrow*: Money stays with you until customer confirms job is done
+3.  *ID + Selfie verification* for all fundis

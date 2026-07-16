@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Mtaani Skills API - a marketplace connecting customers with verified TVET student Fundis
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: fundis
+    description: Fundi profile operations
+  - name: jobs
+    description: Job booking operations
+  - name: reviews
+    description: Review operations
+  - name: users
+    description: User operations
+  - name: dashboard
+    description: Admin dashboard and stats
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +33,772 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── USERS ────────────────────────────────────────────────────────────────
+  /users:
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Bad request
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+
+  # ─── FUNDIS ───────────────────────────────────────────────────────────────
+  /fundis:
+    get:
+      operationId: listFundis
+      tags: [fundis]
+      summary: List / search fundis
+      parameters:
+        - name: skill
+          in: query
+          schema:
+            type: string
+          description: Filter by skill category
+        - name: location
+          in: query
+          schema:
+            type: string
+          description: Filter by town / area
+        - name: verified
+          in: query
+          schema:
+            type: boolean
+          description: Only return verified fundis
+        - name: available
+          in: query
+          schema:
+            type: boolean
+          description: Only return available fundis
+      responses:
+        "200":
+          description: List of fundis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Fundi"
+    post:
+      operationId: createFundi
+      tags: [fundis]
+      summary: Register as a fundi (user becomes a fundi)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundiInput"
+      responses:
+        "201":
+          description: Fundi profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundi"
+        "400":
+          description: Bad request
+
+  /fundis/{id}:
+    get:
+      operationId: getFundi
+      tags: [fundis]
+      summary: Get fundi profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fundi profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundi"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateFundi
+      tags: [fundis]
+      summary: Update fundi profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundiUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundi"
+        "404":
+          description: Not found
+
+  /fundis/{id}/verify:
+    patch:
+      operationId: verifyFundi
+      tags: [fundis]
+      summary: Admin — approve/reject fundi verification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundiVerification"
+      responses:
+        "200":
+          description: Verification status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fundi"
+        "404":
+          description: Not found
+
+  # ─── JOBS ─────────────────────────────────────────────────────────────────
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List jobs (filter by role and status)
+      parameters:
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+          description: Filter by customer
+        - name: fundiId
+          in: query
+          schema:
+            type: integer
+          description: Filter by fundi
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, rejected, in_progress, completed, disputed]
+          description: Filter by status
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Customer creates a job booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "400":
+          description: Bad request
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get job details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update job status (accept, reject, complete, dispute)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Not found
+
+  /jobs/{id}/release-payment:
+    post:
+      operationId: releaseJobPayment
+      tags: [jobs]
+      summary: Customer or admin releases escrow payment to fundi
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payment released
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "400":
+          description: Cannot release payment
+        "404":
+          description: Not found
+
+  # ─── PAYMENTS ─────────────────────────────────────────────────────────────
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [jobs]
+      summary: List all payments (admin)
+      parameters:
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: createPayment
+      tags: [jobs]
+      summary: Create an escrow payment for a job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "201":
+          description: Payment record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "400":
+          description: Bad request
+
+  # ─── REVIEWS ──────────────────────────────────────────────────────────────
+  /reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List reviews for a fundi
+      parameters:
+        - name: fundiId
+          in: query
+          schema:
+            type: integer
+          description: Filter reviews by fundi
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+          description: Filter by job
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Customer posts a review after job completion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "201":
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          description: Bad request
+
+  # ─── DASHBOARD / STATS (wow endpoints) ────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Admin dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/recent-jobs:
+    get:
+      operationId: getRecentJobs
+      tags: [dashboard]
+      summary: Most recent jobs across the platform
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Recent jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+
+  /dashboard/top-fundis:
+    get:
+      operationId: getTopFundis
+      tags: [dashboard]
+      summary: Top-rated verified fundis
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 6
+      responses:
+        "200":
+          description: Top fundis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Fundi"
+
+  /dashboard/pending-verifications:
+    get:
+      operationId: getPendingVerifications
+      tags: [dashboard]
+      summary: Fundis awaiting admin verification
+      responses:
+        "200":
+          description: Pending verification fundis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Fundi"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ─── USER ────────────────────────────────────────────────────────────────
+    User:
+      type: object
+      required: [id, name, phone, role, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [customer, fundi, admin]
+        email:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    UserInput:
+      type: object
+      required: [name, phone, role]
+      properties:
+        name:
+          type: string
+          minLength: 2
+        phone:
+          type: string
+          minLength: 9
+        role:
+          type: string
+          enum: [customer, fundi, admin]
+        email:
+          type: string
+
+    # ─── FUNDI ───────────────────────────────────────────────────────────────
+    Fundi:
+      type: object
+      required: [id, userId, skills, tvtLevel, hourlyRate, location, verified, available, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: ["string", "null"]
+        userPhone:
+          type: ["string", "null"]
+        skills:
+          type: array
+          items:
+            type: string
+        tvtLevel:
+          type: string
+          enum: [level_4, level_5, level_6]
+        certificateUrl:
+          type: ["string", "null"]
+        idNumber:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        hourlyRate:
+          type: number
+        location:
+          type: string
+        verified:
+          type: boolean
+        available:
+          type: boolean
+        averageRating:
+          type: ["number", "null"]
+        totalReviews:
+          type: integer
+        completedJobs:
+          type: integer
+        photoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    FundiInput:
+      type: object
+      required: [userId, skills, tvtLevel, hourlyRate, location]
+      properties:
+        userId:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        tvtLevel:
+          type: string
+          enum: [level_4, level_5, level_6]
+        certificateUrl:
+          type: string
+        idNumber:
+          type: string
+        bio:
+          type: string
+        hourlyRate:
+          type: number
+          minimum: 0
+        location:
+          type: string
+        photoUrl:
+          type: string
+
+    FundiUpdate:
+      type: object
+      properties:
+        skills:
+          type: array
+          items:
+            type: string
+        bio:
+          type: string
+        hourlyRate:
+          type: number
+        location:
+          type: string
+        available:
+          type: boolean
+        photoUrl:
+          type: string
+        certificateUrl:
+          type: string
+
+    FundiVerification:
+      type: object
+      required: [verified]
+      properties:
+        verified:
+          type: boolean
+        rejectionReason:
+          type: string
+
+    # ─── JOB ─────────────────────────────────────────────────────────────────
+    Job:
+      type: object
+      required: [id, customerId, fundiId, description, location, agreedPrice, status, createdAt]
+      properties:
+        id:
+          type: integer
+        customerId:
+          type: integer
+        customerName:
+          type: ["string", "null"]
+        fundiId:
+          type: integer
+        fundiName:
+          type: ["string", "null"]
+        description:
+          type: string
+        location:
+          type: string
+        agreedPrice:
+          type: number
+        status:
+          type: string
+          enum: [pending, accepted, rejected, in_progress, completed, disputed]
+        scheduledDate:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        commissionAmount:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    JobInput:
+      type: object
+      required: [customerId, fundiId, description, location, agreedPrice]
+      properties:
+        customerId:
+          type: integer
+        fundiId:
+          type: integer
+        description:
+          type: string
+          minLength: 10
+        location:
+          type: string
+        agreedPrice:
+          type: number
+          minimum: 100
+        scheduledDate:
+          type: string
+        notes:
+          type: string
+
+    JobUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected, in_progress, completed, disputed]
+        notes:
+          type: string
+        scheduledDate:
+          type: string
+
+    # ─── PAYMENT ─────────────────────────────────────────────────────────────
+    Payment:
+      type: object
+      required: [id, jobId, amount, mpesaCode, status, createdAt]
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        amount:
+          type: number
+        mpesaCode:
+          type: string
+        status:
+          type: string
+          enum: [escrow, released, refunded]
+        commissionAmount:
+          type: ["number", "null"]
+        fundiAmount:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    PaymentInput:
+      type: object
+      required: [jobId, amount, mpesaCode]
+      properties:
+        jobId:
+          type: integer
+        amount:
+          type: number
+          minimum: 1
+        mpesaCode:
+          type: string
+          minLength: 6
+
+    # ─── REVIEW ──────────────────────────────────────────────────────────────
+    Review:
+      type: object
+      required: [id, jobId, fundiId, customerId, rating, createdAt]
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        fundiId:
+          type: integer
+        customerId:
+          type: integer
+        customerName:
+          type: ["string", "null"]
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ReviewInput:
+      type: object
+      required: [jobId, fundiId, customerId, rating]
+      properties:
+        jobId:
+          type: integer
+        fundiId:
+          type: integer
+        customerId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    # ─── DASHBOARD ───────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalFundis, verifiedFundis, pendingVerifications, totalJobs, activeJobs, completedJobs, totalRevenue, commissionEarned, totalCustomers]
+      properties:
+        totalFundis:
+          type: integer
+        verifiedFundis:
+          type: integer
+        pendingVerifications:
+          type: integer
+        totalJobs:
+          type: integer
+        activeJobs:
+          type: integer
+        completedJobs:
+          type: integer
+        totalRevenue:
+          type: number
+        commissionEarned:
+          type: number
+        totalCustomers:
+          type: integer

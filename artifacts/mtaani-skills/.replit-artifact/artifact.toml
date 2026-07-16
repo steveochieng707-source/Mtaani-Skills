@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Mtaani Skills"
+version = "1.0.0"
+id = "artifacts/mtaani-skills"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25910
+
+[services.development]
+run = "pnpm --filter @workspace/mtaani-skills run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mtaani-skills", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/mtaani-skills/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25910"
+BASE_PATH = "/"
